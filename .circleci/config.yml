@@ -1,37 +1,49 @@
-version: 2
+version: 2.0
+
 jobs:
-  build:
-    working_directory: ~/test_project/dashboard
-    parallelism: 1
-    shell: /bin/bash --login
-    environment:
-      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
-      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+  "ruby-2.2":
     docker:
-    - image: circleci/node:8.11.3-browsers
-      command: /sbin/init
-    steps:
-    - checkout
-    - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
-    
-  deploy-dev:
-    working_directory: ~/test_project/dashboard
-    parallelism: 1
-    shell: /bin/bash --login
+      - image: circleci/ruby:2.2-node
+      - image: circleci/postgres:9.4.12-alpine
+    working_directory: ~/circleci-demo-workflows
     steps:
       - checkout
+      - run: bundle install --path vendor/bundle
+      - run: bundle exec rake db:create db:schema:load
       - run:
-          name: Deploy TestDev
-          command: |
-            echo "-----------------------------------------------------------------------------------------"
-  
-  
+          name: Run tests
+          command: rake
+
+  "ruby-2.3":
+    docker:
+      - image: circleci/ruby:2.3-node
+      - image: circleci/postgres:9.4.12-alpine
+    working_directory: ~/circleci-demo-workflows
+    steps:
+      - checkout
+      - run: bundle install --path vendor/bundle
+      - run: bundle exec rake db:create db:schema:load
+      - run:
+          name: Run tests
+          command: rake
+
+  "ruby-2.4":
+    docker:
+      - image: circleci/ruby:2.4-node
+      - image: circleci/postgres:9.4.12-alpine
+    working_directory: ~/circleci-demo-workflows
+    steps:
+      - checkout
+      - run: bundle install --path vendor/bundle
+      - run: bundle exec rake db:create db:schema:load
+      - run:
+          name: Run tests
+          command: rake
+
 workflows:
   version: 2
-  build-and-deploy-dev:
+  build:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - develop
+      - "ruby-2.2"
+      - "ruby-2.3"
+      - "ruby-2.4"
