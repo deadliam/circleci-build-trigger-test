@@ -8,13 +8,17 @@ jobs:
     steps:
       - checkout
       - run:
+        name: "Deploy dev site"
+          command: |
+          echo "Deploy"
+      - run:
           name: "Run Functional Tests"
           command: |
             curl -X POST \
             --header "Content-Type:application/json" \
             --data '{}' \
             "https://circleci.com/api/v1.1/project/github/$ORGANIZATION/$PROJECT/build?circle-token=$CIRCLE_TOKEN&revision=$BRANCH"
-
+      -run: echo "Succeeded"
 workflows:
   version: 2
   build:
